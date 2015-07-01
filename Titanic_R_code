@@ -1,0 +1,59 @@
+library(ggplot2)
+library(randomForest)
+
+setwd("F://Learning//Analytics//Kaggle//Kaggle_Titanic//data")
+getwd()
+
+set.seed(1)
+train <- read.csv("train.csv", stringsAsFactors=FALSE)
+test  <- read.csv("test.csv",  stringsAsFactors=FALSE)
+
+#rm(train_data)
+
+str(train)
+head(train)
+
+str(test)
+head(test)
+
+ind_vars <- function(data) {
+  features <- c("Pclass",
+                "Age",
+                "Sex",
+                "Parch",
+                "SibSp",
+                "Fare",
+                "Embarked")
+  fea <- data[,features]
+  fea$Age[is.na(fea$Age)] <- -1
+  fea$Fare[is.na(fea$Fare)] <- median(fea$Fare, na.rm=TRUE)
+  fea$Embarked[fea$Embarked==""] = "S"
+  fea$Sex      <- as.factor(fea$Sex)
+  fea$Embarked <- as.factor(fea$Embarked)
+  return(fea)
+}
+
+rf <- randomForest(ind_vars(train), as.factor(train$Survived), ntree=100, importance=TRUE)
+
+print(rf)
+
+submission <- data.frame(PassengerId = test$PassengerId)
+
+submission$Survived <- predict(rf, ind_vars(test))
+write.csv(submission, file = "1_random_forest_r_submission.csv", row.names=FALSE)
+
+#
+imp <- importance(rf, type=1)
+featureImportance <- data.frame(Feature=row.names(imp), Importance=imp[,1])
+
+
+graph <- ggplot(featureImportance, aes(x=reorder(Feature, Importance), y=Importance)) +
+  geom_bar(stat="identity", fill="#53cfff") +
+  coord_flip() + 
+  theme_light(base_size=20) +
+  xlab("") +
+  ylab("Importance") + 
+  ggtitle("Random Forest Feature Importance\n") +
+  theme(plot.title=element_text(size=18))
+
+ggsave("2_feature_importance.png", graph)
