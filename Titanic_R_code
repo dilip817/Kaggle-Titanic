@@ -1,12 +1,3 @@
-
-# This script trains a Random Forest model based on the data,
-# saves a sample submission, and plots the relative importance
-# of the variables in making predictions
-
-# Download 1_random_forest_r_submission.csv from the output below
-# and submit it through https://www.kaggle.com/c/titanic-gettingStarted/submissions/attach
-# to enter this getting started competition!
-
 library(ggplot2)
 library(randomForest)
 
