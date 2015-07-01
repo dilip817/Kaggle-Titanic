@@ -1,3 +1,12 @@
+
+# This script trains a Random Forest model based on the data,
+# saves a sample submission, and plots the relative importance
+# of the variables in making predictions
+
+# Download 1_random_forest_r_submission.csv from the output below
+# and submit it through https://www.kaggle.com/c/titanic-gettingStarted/submissions/attach
+# to enter this getting started competition!
+
 library(ggplot2)
 library(randomForest)
 
@@ -16,6 +25,13 @@ head(train)
 str(test)
 head(test)
 
+summary(train$Cabin)
+table(train$Cabin)
+
+#train$Cabin[train$Cabin==""] = 0
+#train$Cabin[train$Cabin!=""] = 1
+
+
 ind_vars <- function(data) {
   features <- c("Pclass",
                 "Age",
@@ -23,13 +39,17 @@ ind_vars <- function(data) {
                 "Parch",
                 "SibSp",
                 "Fare",
-                "Embarked")
+                "Embarked",
+                "Cabin")
   fea <- data[,features]
   fea$Age[is.na(fea$Age)] <- -1
   fea$Fare[is.na(fea$Fare)] <- median(fea$Fare, na.rm=TRUE)
   fea$Embarked[fea$Embarked==""] = "S"
   fea$Sex      <- as.factor(fea$Sex)
   fea$Embarked <- as.factor(fea$Embarked)
+  fea$Cabin[fea$Cabin==""] = 0
+  fea$Cabin[fea$Cabin!=""] = 1
+  
   return(fea)
 }
 
